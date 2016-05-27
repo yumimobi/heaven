@@ -33,7 +33,7 @@ module Heaven
             "fab -H %{hosts} %{task}:branch_name=%{ref},payload=%{payload}"
           deploy_string = deploy_command_format % {
             :hosts => hosts,
-            :payload => payload.to_json,
+            :payload => payload.to_json.inspect.gsub(",", "\\,"),
             :environment => environment,
             :task => task,
             :ref => ref
