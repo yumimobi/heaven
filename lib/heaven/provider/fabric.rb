@@ -12,10 +12,6 @@ module Heaven
         deployment_data["task"] || "deploy"
       end
 
-      def deploy_command_format
-        ENV["DEPLOY_COMMAND_FORMAT"] || "fab -R %{environment} %{task}:branch_name=%{ref}"
-      end
-
       def execute
         return execute_and_log(["/usr/bin/true"]) if Rails.env.test?
 
@@ -28,7 +24,14 @@ module Heaven
           log "Fetching the latest code"
           execute_and_log(%w{git fetch})
           execute_and_log(["git", "reset", "--hard", sha])
+          payload = deployment_data["payload"]
+          hosts = payload["hosts"].blank? ? "" : payload["hosts"].join(",")
+          deploy_command_format = hosts.blank?  ?
+            "fab -R %{environment} %{task}:branch_name=%{ref}" :
+            "fab -H %{hosts} %{task}:branch_name=%{ref},payload=%{payload}"
           deploy_string = deploy_command_format % {
+            :hosts => hosts,
+            :payload => payload,
             :environment => environment,
             :task => task,
             :ref => ref
