@@ -1,3 +1,5 @@
+require 'json'
+
 module Heaven
   # Top-level module for providers.
   module Provider
@@ -31,7 +33,7 @@ module Heaven
             "fab -H %{hosts} %{task}:branch_name=%{ref},payload=%{payload}"
           deploy_string = deploy_command_format % {
             :hosts => hosts,
-            :payload => payload,
+            :payload => payload.to_json,
             :environment => environment,
             :task => task,
             :ref => ref
