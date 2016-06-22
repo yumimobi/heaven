@@ -19,3 +19,4 @@ public/assets
 release.sh
 coverage
 .ruby-version
+fabfile.pyc
