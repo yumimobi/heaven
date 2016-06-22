@@ -24,10 +24,16 @@ module Heaven
 
         Dir.chdir(checkout_directory) do
           log "Fetching the latest code"
+          execute_and_log(%w{git checkout .})
+          execute_and_log(%w{git clean -fd})
           execute_and_log(%w{git fetch})
           execute_and_log(["git", "reset", "--hard", sha])
+
           payload = deployment_data["payload"]
-          hosts = payload["hosts"].blank? ? "" : payload["hosts"].join(",")
+          h = payload["hosts"]
+          is_hosts_string = h.instance_of? String
+          hosts = is_hosts_string ? h : h.join(",")
+
           deploy_command_format = hosts.blank?  ?
             "fab -R %{environment} %{task}:branch_name=%{ref}" :
             "fab -H %{hosts} %{task}:branch_name=%{ref},payload=%{payload}"
