@@ -28,7 +28,7 @@ def deploy(branch_name, payload=''):
 
     with cd(codedir):
         run('bundle install')
-        run('rake db:migrate')
+        run('RAILS_ENV=production rake db:migrate')
 
     run('supervisorctl restart heaven:*')
 
