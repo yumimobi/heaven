@@ -27,7 +27,7 @@ module Heaven
           execute_and_log(%w{git checkout .})
           execute_and_log(%w{git clean -fd})
           execute_and_log(%w{git fetch})
-          execute_and_log(["git", "reset", "--hard", sha])
+          execute_and_log(["git", "reset", "--hard", sha]) unless task == "rollback"
 
           payload = deployment_data["payload"]
           h = payload["hosts"]
