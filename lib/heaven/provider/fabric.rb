@@ -17,10 +17,12 @@ module Heaven
       def execute
         return execute_and_log(["/usr/bin/true"]) if Rails.env.test?
 
-        unless File.exist?(checkout_directory)
-          log "Cloning #{repository_url} into #{checkout_directory}"
-          execute_and_log(["git", "clone", clone_url, checkout_directory])
+        if File.exist?(checkout_directory)
+          execute_and_log(["rm", "-rf", checkout_directory])
         end
+
+        log "Cloning #{repository_url} into #{checkout_directory}"
+        execute_and_log(["git", "clone", clone_url, checkout_directory])
 
         Dir.chdir(checkout_directory) do
           log "Fetching the latest code"
