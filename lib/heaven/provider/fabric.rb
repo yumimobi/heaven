@@ -17,14 +17,16 @@ module Heaven
       def execute
         return execute_and_log(["/usr/bin/true"]) if Rails.env.test?
 
-        if File.exist?(checkout_directory)
-          execute_and_log(["rm", "-rf", checkout_directory])
+        uuid = SecureRandom.uuid
+        random_dir = "#{working_directory}/#{uuid}"
+        if File.exist?(random_dir)
+          execute_and_log(["rm", "-rf", random_dir])
         end
 
-        log "Cloning #{repository_url} into #{checkout_directory}"
-        execute_and_log(["git", "clone", clone_url, checkout_directory])
+        log "Cloning #{repository_url} into #{random_dir}"
+        execute_and_log(["git", "clone", clone_url, random_dir])
 
-        Dir.chdir(checkout_directory) do
+        Dir.chdir(random_dir) do
           log "Fetching the latest code"
           execute_and_log(%w{git checkout .})
           execute_and_log(%w{git clean -fd})
@@ -50,6 +52,8 @@ module Heaven
           log "Executing fabric: #{deploy_string}"
           execute_and_log([deploy_string])
         end
+
+        execute_and_log(["rm", "-rf", random_dir])
       end
     end
   end
