@@ -181,6 +181,8 @@ module Heaven
       rescue StandardError => e
         Rails.logger.info "%s stand error message: %s" % [now(), e.message]
         Rails.logger.info "%s stand error backtrace: %s" % [now(), e.backtrace]
+        output.stderr += "\n\nstand error message: %s" % [e.message]
+        output.stderr += "\n\nstand error backtrace: %s" % [e.backtrace]
       ensure
         update_output
         status.failure! unless completed?
