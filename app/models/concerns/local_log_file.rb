@@ -55,6 +55,6 @@ module LocalLogFile
   end
 
   def terminate_child_process_on_timeout
-    ENV["TERMINATE_CHILD_PROCESS_ON_TIMEOUT"] == "1"
+    true
   end
 end
