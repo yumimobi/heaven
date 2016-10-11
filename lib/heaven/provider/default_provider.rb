@@ -1,3 +1,5 @@
+require 'date'
+
 module Heaven
   # Top-level module for providers.
   module Provider
@@ -33,7 +35,7 @@ module Heaven
       end
 
       def log(line)
-        Rails.logger.info "#{name}-#{guid}: #{line}"
+        Rails.logger.info "#{now} #{name}-#{guid}: #{line}"
       end
 
       def gem_executable_path(name)
@@ -43,6 +45,10 @@ module Heaven
         else
           "bin/#{name}"
         end
+      end
+
+      def now
+        DateTime.now.strftime "%Y-%m-%d %H:%M:%S"
       end
 
       def number
@@ -169,12 +175,12 @@ module Heaven
           record
         end
       rescue POSIX::Spawn::TimeoutExceeded, Timeout::Error => e
-        Rails.logger.info e.message
-        Rails.logger.info e.backtrace
+        Rails.logger.info "%s deploy timeout message: %s" % [now(), e.message]
+        Rails.logger.info "%s deploy timeout backtrace: %s" % [now(), e.backtrace]
         output.stderr += "\n\nDEPLOYMENT TIMED OUT AFTER #{timeout} SECONDS"
       rescue StandardError => e
-        Rails.logger.info e.message
-        Rails.logger.info e.backtrace
+        Rails.logger.info "%s stand error message: %s" % [now(), e.message]
+        Rails.logger.info "%s stand error backtrace: %s" % [now(), e.backtrace]
       ensure
         update_output
         status.failure! unless completed?
