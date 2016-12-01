@@ -30,8 +30,7 @@ def deploy(branch_name, payload=''):
         run('bundle install')
         run('RAILS_ENV=production rake db:migrate')
 
-    run('kill `ps aux | grep [r]esque- | grep -v grep | cut -c 10-16`')
-    run('supervisorctl restart heaven:*')
+    run('supervisorctl restart heaven:')
 
 def rollback(branch_name, payload={}):
     print("rollback to ref %s" % branch_name)
