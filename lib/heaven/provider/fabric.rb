@@ -40,7 +40,7 @@ module Heaven
 
           deploy_command_format = hosts.blank?  ?
             "fab -R %{environment} %{task}:branch_name=%{ref}" :
-            "fab -H %{hosts} %{task}:branch_name=%{ref},payload=%{payload}"
+            "fab -H %{hosts} %{task}:branch_name=%{ref},payload=%{payload} --set=environment=%{environment}"
           deploy_string = deploy_command_format % {
             :hosts => hosts,
             :payload => payload.to_json.inspect.gsub(",", "\\,"),
