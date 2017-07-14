@@ -3,11 +3,7 @@ module WebhookValidations
   extend ActiveSupport::Concern
 
   def verify_incoming_webhook_address!
-    if valid_incoming_webhook_address?
       true
-    else
-      render :json => {}, :status => :forbidden
-    end
   end
 
   def valid_incoming_webhook_address?
