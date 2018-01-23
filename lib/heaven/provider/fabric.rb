@@ -33,7 +33,7 @@ module Heaven
           execute_and_log(%w{git fetch})
           execute_and_log(["git", "reset", "--hard", sha]) unless task == "rollback"
 
-          in_china = ENV['REGION'].equal? 'CHINA'
+          in_china = ENV['REGION'].eql? 'CHINA'
           fabfile = in_china ? "fabfile-cn.py" : "fabfile.py"
           return execute_and_log(["/usr/bin/true"]) unless File.exist?(fabfile)
 
