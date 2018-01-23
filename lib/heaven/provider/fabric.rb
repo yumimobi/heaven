@@ -46,6 +46,7 @@ module Heaven
             "fab -R %{environment} %{task}:branch_name=%{ref} -f %{fabfile}" :
             "fab -H %{hosts} %{task}:branch_name=%{ref},payload=%{payload} --set=environment=%{environment} -f %{fabfile}"
           deploy_string = deploy_command_format % {
+            :fabfile => fabfile,
             :hosts => hosts,
             :payload => payload.to_json.inspect.gsub(",", "\\,"),
             :environment => environment,
