@@ -6,8 +6,8 @@ env.user = 'adxopt'
 env.port = '6008'
 env.roledefs.update({
     'production': [
-        'localhost',
         '101.201.76.82',
+        'localhost',
     ]
 })
 
