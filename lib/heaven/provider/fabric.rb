@@ -33,14 +33,18 @@ module Heaven
           execute_and_log(%w{git fetch})
           execute_and_log(["git", "reset", "--hard", sha]) unless task == "rollback"
 
+          in_china = ENV['REGION'].equal? 'CHINA'
+          fabfile = in_china ? "fabfile-cn.py" : "fabfile.py"
+          return execute_and_log(["/usr/bin/true"]) unless File.exist?(fabfile)
+
           payload = deployment_data["payload"]
           h = payload["hosts"]
           is_hosts_string = h.instance_of? String
           hosts = is_hosts_string ? h : h.join(",")
 
           deploy_command_format = hosts.blank?  ?
-            "fab -R %{environment} %{task}:branch_name=%{ref}" :
-            "fab -H %{hosts} %{task}:branch_name=%{ref},payload=%{payload} --set=environment=%{environment}"
+            "fab -R %{environment} %{task}:branch_name=%{ref} -f %{fabfile}" :
+            "fab -H %{hosts} %{task}:branch_name=%{ref},payload=%{payload} --set=environment=%{environment} -f %{fabfile}"
           deploy_string = deploy_command_format % {
             :hosts => hosts,
             :payload => payload.to_json.inspect.gsub(",", "\\,"),
