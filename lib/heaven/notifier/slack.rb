@@ -28,17 +28,21 @@ module Heaven
         message << " : #{user_link}"
         case state
         when "success"
-          message << "'s #{environment} deployment of #{repository_link} is done! "
+          message << "'s #{environment} deployment of #{repository_link} from #{region} is done! "
         when "failure"
-          message << "'s #{environment} deployment of #{repository_link} failed. "
+          message << "'s #{environment} deployment of #{repository_link} from #{region} failed. "
         when "error"
-          message << "'s #{environment} deployment of #{repository_link} has errors. #{ascii_face} "
+          message << "'s #{environment} deployment of #{repository_link} from #{region} has errors. #{ascii_face} "
           message << description unless description =~ /Deploying from Heaven/
         when "pending"
-          message << " is deploying #{repository_link("/tree/#{ref}")} to #{environment} #{compare_link}"
+          message << " is deploying #{repository_link("/tree/#{ref}")} from #{region} to #{environment} #{compare_link}"
         else
           puts "Unhandled deployment state, #{state}"
         end
+      end
+
+      def region
+        ENV['REGION'] || 'SINGAPORE'
       end
 
       def slack_formatted(message)
