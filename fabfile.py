@@ -36,6 +36,7 @@ def deploy(branch_name, payload=''):
     restart()
 
 def restart():
+    run('supervisorctl update heaven')
     run('supervisorctl restart heaven:')
 
 def rollback(branch_name, payload={}):
