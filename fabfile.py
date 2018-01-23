@@ -5,7 +5,10 @@ from fabric.operations import run, local, put
 env.user = 'adxopt'
 env.port = '6008'
 env.roledefs.update({
-    'production': ['localhost']
+    'production': [
+        'localhost',
+        '101.201.76.82',
+    ]
 })
 
 # Heaven will execute
@@ -30,6 +33,9 @@ def deploy(branch_name, payload=''):
         run('bundle install')
         run('RAILS_ENV=production rake db:migrate')
 
+    restart()
+
+def restart():
     run('supervisorctl restart heaven:')
 
 def rollback(branch_name, payload={}):
