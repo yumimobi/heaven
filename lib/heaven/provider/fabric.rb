@@ -35,7 +35,7 @@ module Heaven
 
           in_china = ENV['REGION'].eql? 'CHINA'
           fabfile = in_china ? "fabfile-cn.py" : "fabfile.py"
-          return unless File.exist?(fabfile)
+          next unless File.exist?(fabfile)
 
           payload = deployment_data["payload"]
           h = payload["hosts"]
