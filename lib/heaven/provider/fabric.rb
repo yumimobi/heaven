@@ -17,48 +17,42 @@ module Heaven
       def execute
         return execute_and_log(["/usr/bin/true"]) if Rails.env.test?
 
-        uuid = SecureRandom.uuid
-        random_dir = "#{working_directory}/#{uuid}"
-        if File.exist?(random_dir)
-          execute_and_log(["rm", "-rf", random_dir])
+        Dir.mktmpdir do |random_dir|
+          log "Cloning #{repository_url} into #{random_dir}"
+          execute_and_log(["git", "clone", clone_url, random_dir])
+
+          Dir.chdir(random_dir) do
+            log "Fetching the latest code"
+            execute_and_log(%w{git checkout .})
+            execute_and_log(%w{git clean -fd})
+            execute_and_log(%w{git fetch})
+            execute_and_log(["git", "reset", "--hard", sha]) unless task == "rollback"
+
+            in_china = ENV['REGION'].eql? 'CHINA'
+            fabfile = in_china ? "fabfile-cn.py" : "fabfile.py"
+            next unless File.exist?(fabfile)
+
+            payload = deployment_data["payload"]
+            h = payload["hosts"]
+            is_hosts_string = h.instance_of? String
+            hosts = is_hosts_string ? h : h.join(",")
+
+            deploy_command_format = hosts.blank?  ?
+              "fab -R %{environment} %{task}:branch_name=%{ref} -f %{fabfile}" :
+              "fab -H %{hosts} %{task}:branch_name=%{ref},payload=%{payload} --set=environment=%{environment} -f %{fabfile}"
+            deploy_string = deploy_command_format % {
+              :fabfile => fabfile,
+              :hosts => hosts,
+              :payload => payload.to_json.inspect.gsub(",", "\\,"),
+              :environment => environment,
+              :task => task,
+              :ref => ref
+            }
+
+            log "Executing fabric: #{deploy_string}"
+            execute_and_log([deploy_string])
+          end
         end
-
-        log "Cloning #{repository_url} into #{random_dir}"
-        execute_and_log(["git", "clone", clone_url, random_dir])
-
-        Dir.chdir(random_dir) do
-          log "Fetching the latest code"
-          execute_and_log(%w{git checkout .})
-          execute_and_log(%w{git clean -fd})
-          execute_and_log(%w{git fetch})
-          execute_and_log(["git", "reset", "--hard", sha]) unless task == "rollback"
-
-          in_china = ENV['REGION'].eql? 'CHINA'
-          fabfile = in_china ? "fabfile-cn.py" : "fabfile.py"
-          next unless File.exist?(fabfile)
-
-          payload = deployment_data["payload"]
-          h = payload["hosts"]
-          is_hosts_string = h.instance_of? String
-          hosts = is_hosts_string ? h : h.join(",")
-
-          deploy_command_format = hosts.blank?  ?
-            "fab -R %{environment} %{task}:branch_name=%{ref} -f %{fabfile}" :
-            "fab -H %{hosts} %{task}:branch_name=%{ref},payload=%{payload} --set=environment=%{environment} -f %{fabfile}"
-          deploy_string = deploy_command_format % {
-            :fabfile => fabfile,
-            :hosts => hosts,
-            :payload => payload.to_json.inspect.gsub(",", "\\,"),
-            :environment => environment,
-            :task => task,
-            :ref => ref
-          }
-
-          log "Executing fabric: #{deploy_string}"
-          execute_and_log([deploy_string])
-        end
-
-        execute_and_log(["rm", "-rf", random_dir])
       end
     end
   end
